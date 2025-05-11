@@ -9,7 +9,12 @@ class Satellite:
         self.mass = 1000
         self.position = np.zeros((data,2))
         self.velocity = np.zeros((data,2))
-    
+
+    def init(self,mass,pos,vel):
+        self.mass=mass
+        self.velocity[0]=vel
+        for i in range(len(self.velocity)):
+            self.position[i]=pos
     #Take values from user:
     def take_input(self):
         self.mass=input("Please give the object a mass [kg]: ")
@@ -26,9 +31,9 @@ class Satellite:
     def acceleration(self,pos,mass,G,t):    #t is the index of the current position and velocity
         t=t-1
         dist = sqrt((pos[0]-self.position[t,0])**2+(pos[1]-self.position[t,1])**2)  #Calculate distance (Pythagoran theorem)
-        unit_vector=np.array([pos[0]-self.position[t][0],pos[1]-self.position[t][0]])/dist   #Calculate the unit vector pointing from self planet to other planet
-        F=unit_vector*((G*self.mass*mass)/(dist**2))    #Calculate the gravitational force
-        a=F/self.mass    #Newton's second law
+        unit_vector=np.array([pos[0]-self.position[t,0],pos[1]-self.position[t,1]])/dist   #Calculate the unit vector pointing from self planet to other planet
+        a=unit_vector*((G*mass)/(dist**2))    #Calculate the gravitational force
+        #Newton's second law
         return a
     
     #modifies position and velocity 
