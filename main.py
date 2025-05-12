@@ -1,13 +1,13 @@
 from myfunctions import *
 plt.ion()
-fig, ax = plt.subplots()
+
 ax.set_xlim(-10e7, 10e7)
 ax.set_ylim(-10e7, 10e7)
 
 #Contants
 G=6.67430*10**(-11) # [m3/kgs2]
 datapoints=6000
-dt=30
+dt=10
 planets = [Satellite(datapoints),Satellite(datapoints)]
 
 planets[0].init(100,[42700000,0],[0,2000])
@@ -15,13 +15,13 @@ planets[1].init(5.67*10**24,[0,0],[0,0])
 
 geo1=Trajectory()
 geo1.calculate([42700000,0],[0,2000],planets[1],G)
-print(geo1)
-geo1.visualise()
 
 lines = []
 for p in planets:
     line, = ax.plot([], [], '-')
     lines.append(line)
+lines.append(geo1.visualise())
+
 
 lineheads = []
 for p in planets:
