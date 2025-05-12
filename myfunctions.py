@@ -49,15 +49,24 @@ class Trajectory:
         self.angle = 0 #[rad]
     def calculate(self, pos, vel, earth,G):
         mu=earth.mass*G #calculates the planetary constant of the body in the centrum
-        d=dist(pos,earth.position) #calculates the distance between the bodies
-        H=(pos-earth.pos)[0]*vel[1]-(pos-earth.pos)[1]*vel[0] #calculates the angular momentum
+        d=dist(pos,earth.position[0]) #calculates the distance between the bodies
+        H=(pos-earth.pos[0])[0]*vel[1]-(pos-earth.pos[0])[1]*vel[0] #calculates the angular momentum
         E=np.dot(vel,vel)-mu/d #calculates the energy
         self.a=mu/2/E   #calculates the semi major axis
         P=H**2/mu       #calculates the ellipse parameter
         e=sqrt(1-P/self.a) #calculates the eccentricity
         self.b=self.a*sqrt(1-e^2) #calculates the semi minor axis
-        #self.angle=acos(P-1/e)    #calculates the angle
+        theta=acos(P-1/e)    #calculates the true anomaly
+        alpha=atan(tan(theta/2)*sqrt((1+e)/(1-e))) #eccentric anomaly
+        try:
+            self.angle=atan(pos[1]/pos[0])-alpha
+        except: self.angle=pi/2-alpha
 
-    #def visualise(self):
-
-                
+    def visualise(self):
+        t=np.linespace(0,2*pi,50)
+        Ell0=np.array([self.a*np.cos(t)],[self.b*np.sin(t)])
+        Rot=np.array([[cos(self.angle) , -sin(self.angle)],[sin(self.angle) , cos(self.angle)]])
+        Ell = np.zeros((2,Ell0.shape[1]))
+        for i in range(Ell0.shape[1]):
+            Ell[:,i] = np.dot(Rot,Ell[:,i])
+        plt.plot(self.center[0]+Ell[0,:] , self.center[1]+Ell[1,:])

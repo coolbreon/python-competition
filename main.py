@@ -8,12 +8,15 @@ ax.set_ylim(-10e7, 10e7)
 G=6.67430*10**(-11) # [m3/kgs2]
 datapoints=6000
 dt=30
-planets = [Satellite(datapoints),Satellite(datapoints),Satellite(datapoints)]
+planets = [Satellite(datapoints),Satellite(datapoints)]
 
-planets[0].init(5.67*10**24,[42700000,0],[800,3704/3])
-planets[1].init(5.67*10**24,[-42700000,0],[800,-3704/2])
-planets[2].init(5.67*10**24,[0,42700000],[-1604,0])
+planets[0].init(100,[42700000,0],[0,2000])
+planets[1].init(5.67*10**24,[0,0],[0,0])
 
+geo1=Trajectory()
+geo1.calculate([42700000,0],[0,2000],planets[1],G)
+print(geo1)
+geo1.visualise()
 
 lines = []
 for p in planets:
@@ -43,8 +46,7 @@ while running:
     i+=1
     if i==datapoints:
         i=0
-
-    plt.pause(0.0000000001)
+    plt.pause(0.0000001)
     plt.draw()
 
 
