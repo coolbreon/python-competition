@@ -47,7 +47,16 @@ class Trajectory:
         self.a = 1000 #[m]
         self.b = 1000 #[m]
         self.angle = 0 #[rad]
-    #def calculate(self, pos, vel):
+    def calculate(self, pos, vel, earth,G):
+        mu=earth.mass*G #calculates the planetary constant of the body in the centrum
+        d=dist(pos,earth.position) #calculates the distance between the bodies
+        H=(pos-earth.pos)[0]*vel[1]-(pos-earth.pos)[1]*vel[0] #calculates the angular momentum
+        E=np.dot(vel,vel)-mu/d #calculates the energy
+        self.a=mu/2/E   #calculates the semi major axis
+        P=H**2/mu       #calculates the ellipse parameter
+        e=sqrt(1-P/self.a) #calculates the eccentricity
+        self.b=self.a*sqrt(1-e^2) #calculates the semi minor axis
+        #self.angle=acos(P-1/e)    #calculates the angle
 
     #def visualise(self):
 
