@@ -40,4 +40,15 @@ class Satellite:
     def iterate(self,a,dt,t):
         self.position[t]=self.position[t-1]+self.velocity[t-1]*dt
         self.velocity[t]=self.velocity[t-1]+a*dt
+
+class Trajectory:
+    def __init__(self):#data is the number of stored datapoints
+        self.center = np.array([0,0]) 
+        self.a = 1000 #[m]
+        self.b = 1000 #[m]
+        self.angle = 0 #[rad]
+    #def calculate(self, pos, vel):
+
+    #def visualise(self):
+
                 
