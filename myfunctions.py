@@ -29,9 +29,10 @@ class Satellite:
     
     #Calculate acceleration to another body
     def acceleration(self,pos,mass,G,t):    #t is the index of the current position and velocity
-        t=t-1
-        dist = sqrt((pos[0]-self.position[t,0])**2+(pos[1]-self.position[t,1])**2)  #Calculate distance (Pythagoran theorem)
-        unit_vector=np.array([pos[0]-self.position[t,0],pos[1]-self.position[t,1]])/dist   #Calculate the unit vector pointing from self planet to other planet
+        t1-=1
+        r_vec=pos-self.position[t]
+        dist = np.linalg.norm(r_vec)  #Calculate distance (Pythagoran theorem)
+        unit_vector = r_vec/dist   #Calculate the unit vector pointing from self planet to other planet
         a=unit_vector*((G*mass)/(dist**2))    #Calculate the gravitational force
         #Newton's second law
         return a
@@ -48,28 +49,33 @@ class Trajectory:
         self.b = 1000 #[m]
         self.angle = 0 #[rad]
     def calculate(self, pos, vel, earth,G):
+        
         mu=earth.mass*G #calculates the planetary constant of the body in the centrum
-        d=sqrt(np.dot((pos-earth.position[0]),(pos-earth.position[0]))) #calculates the distance between the bodies
-        H=np.cross((pos-earth.position[0]),vel) #calculates the angular momentum
-        E=np.dot(vel,vel)-mu/d #calculates the energy
-        self.a=-mu/2/E   #calculates the semi major axis
+        
+        r_vec =pos-earth.position[0]
+        d=np.linalg.norm(r_vec) #calculates the distance between the bodies
+        
+        H=np.linalg.norm(np.cross(r_vec,vel)) #calculates the angular momentum
+        E=0.5*np.dot(vel,vel)-mu/d #calculates the energy
+        self.a=-mu/(2*E)   #calculates the semi major axis
         P=(H**2)/mu       #calculates the ellipse parameter
         ex=sqrt(1-P/self.a) #calculates the eccentricity
         self.b=self.a*sqrt(1-ex**2) #calculates the semi minor axis
-        theta=acos((P/d-1)/ex)    #calculates the true anomaly
-        alpha=atan(tan(theta/2)*sqrt((1+ex)/(1-ex))) #eccentric anomaly
+        theta=acos((P-d)/(d*ex))    #calculates the true anomaly
+        alpha=2*atan(tan(theta/2)*sqrt((1+ex)/(1-ex))) #eccentric anomaly
         try:
-            self.angle=atan(pos[1]/pos[0])+alpha
+            self.angle=atan(r_vec[0]/r_vec[1])-alpha
         except: 
-            self.angle=pi/4+alpha
+            self.angle=pi/4-alpha
+        rp=self.a*(1-ex)
+        self.center=earth.position[0]-(self.a-rp)*np.array([cos(self.angle),sin(self.angle)])
 
     def visualise(self):
         t=np.linspace(0,2*pi,50)
         Ell0=np.array([self.a*np.cos(t),self.b*np.sin(t)])
         Rot=np.array([[cos(self.angle) , -sin(self.angle)],[sin(self.angle) , cos(self.angle)]])
         Ell = np.zeros((2,Ell0.shape[1]))
-        for i in range(Ell0.shape[1]):
-            Ell = Rot@Ell0
+        Ell = Rot@Ell0
         ellipse, =ax.plot(self.center[0]+Ell[0,:], self.center[1]+Ell[1,:])
         return ellipse
         
