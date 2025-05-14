@@ -1,22 +1,49 @@
 from math import*
 import numpy as np
+from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 from math import *
 fig, ax = plt.subplots()
 
 class Satellite:
-    def __init__(self,data):#data is the number of stored datapoints
-        self.mass = 1000
-        self.position = np.zeros((data,2))
-        self.velocity = np.zeros((data,2))
 
-    def init(self,mass,pos,vel):
+
+    name: str
+    mass: float
+    position: NDArray[np.float64]
+    velocity: NDArray[np.float64]
+    position_history: NDArray[np.float64]
+    #firstIndex: int                       # First index with stored data
+    #lastIndex: int                        # Next free index for storing data
+    #maxIndex: int                         # Number of stored data points
+
+    def __init__(self, name:str, mass:float, pos:NDArray[np.float64],vel:NDArray[np.float64],datapoints=1024):
+        """
+        Initializes the class.
+
+        name: name of the object (e.g. Moon)
+        mass: mass of the object in[kg] (e.g.7.348e22)
+        pos: initial position vector [m,m] (e.g. [0, 384000000])
+        vel: initial velocity vector [m/s, m/s] (e.g [-1023,0]
+        datapoints: number of stored datapoints
+        """
+        self.name=name
         self.mass=mass
-        self.velocity[0]=vel
-        for i in range(len(self.velocity)):
-            self.position[i]=pos
+        self.position=pos
+        self.velocity=vel
+        self.position_history=np.zeros((datapoints,2), dtype=np.float64)
+        self.position_history[0]=self.position.copy()   
+        #self.firstIndex = 0
+        #self.lastIndex = 1
+        #self.maxIndex = datapoints
+
     #Take values from user:
     def take_input(self):
+        '''
+        Takes the data of an object from the user.
+        '''
+
+        self.name=input("Please give the object a name:")
         self.mass=input("Please give the object a mass [kg]: ")
         self.position[0][0]=input("Please give the initial x position: ")
         self.position[0][1]=input("Please give the initial y position: ")
@@ -24,23 +51,57 @@ class Satellite:
         self.velocity[0][1]=input("Please give the initial y velocity: ")
     
     #Print out own values:
-    def print(self):
-        print(f"Mass: {self.mass}\nInitial Position: {self.position[0]}\nInitial Velocity: {self.velocity[0]}")
-    
-    #Calculate acceleration to another body
-    def acceleration(self,pos,mass,G,t):    #t is the index of the current position and velocity
-        t1-=1
-        r_vec=pos-self.position[t]
-        dist = np.linalg.norm(r_vec)  #Calculate distance (Pythagoran theorem)
-        unit_vector = r_vec/dist   #Calculate the unit vector pointing from self planet to other planet
-        a=unit_vector*((G*mass)/(dist**2))    #Calculate the gravitational force
-        #Newton's second law
-        return a
+    def __str__(self):
+        '''
+        Creates a readable representation of the data of an object.
+        (e.g.print(Moon))
+        '''
+        return (f"Object '{self.name}':\n"
+                f"\tMass: {self.mass} [kg]\n"
+                f"\tPosition: {self.position[0]:.1f}, {self.position[1]:.1f} [m] \n"
+                f"\tVelocity: {self.position[0]:.1f}, {self.position[1]:.1f} [m/s]")
     
     #modifies position and velocity 
-    def iterate(self,a,dt,t):
-        self.position[t]=self.position[t-1]+self.velocity[t-1]*dt
-        self.velocity[t]=self.velocity[t-1]+a*dt
+    def move(self,dt):
+        '''
+        Iterates the position with the speed. 
+        Also stores the new position in the self.history array.
+        '''
+        self.position=self.position+self.velocity*dt
+    def store(self,i):
+        '''
+        Stores the current position in the ith place of the history list
+        '''
+        self.position_history[i]=self.position.copy()
+    
+    def getHistory(self,i):
+        '''
+        Returns the stored position data as a 2D array in order.
+        i is the last position with stored data
+        '''
+        return(np.concatenate((self.position_history[i+1:], self.position_history[:i+1])))
+      
+def acceleration(sat1,sat2,G,dt):
+        '''
+        Calculates the gravitational force between two objects.
+        From this it calculates the accelerations and iterates with that.
+        '''
+
+        #Calculate distance
+        r_vec=sat1.position-sat2.position
+        dist = np.linalg.norm(r_vec)
+        unit_vector = r_vec/dist                      
+        
+        #Calculate the unit vector pointing from self planet to other planet
+        F=unit_vector*(G*sat1.mass*sat2.mass)/(dist**2)    
+        
+        #Newton's second law
+        a1=-F/sat1.mass                                    
+        a2=F/sat2.mass
+        
+        #Iteration
+        sat1.velocity=sat1.velocity+a1*dt
+        sat2.velocity=sat2.velocity+a2*dt
 
 class Trajectory:
     def __init__(self):#data is the number of stored datapoints
