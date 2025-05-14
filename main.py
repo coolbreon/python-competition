@@ -16,21 +16,21 @@ cycles=30000
 storefrequency=40
 showfrequency=100
 imp=False
-export=False
+export=True
 
 planets = [
    Satellite(name="Asteroid1", mass=4.0e24,
               pos=np.array([0.0, 4.27e7]),
-              vel=np.array([-2.0e3, 0.0]),
+              vel=np.array([-2.7e3, 0.0]),
               datapoints=datapoints),
 
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, 0.0]),
-              vel=np.array([2.0e3, 0.0]),
+              vel=np.array([3.0e3, 0.0]),
               datapoints=datapoints),
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, -4.27e7]),
-              vel=np.array([2.0e2, 0.0]),
+              vel=np.array([-3.0e2, 0.0]),
               datapoints=datapoints),
     
 ]
@@ -46,7 +46,7 @@ imp=False
 
 if export==True:
     out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
-    with open("Threebody2.json", "w") as fout:
+    with open("Threebody3.json", "w") as fout:
         fout.write(out_lst)
 
 
