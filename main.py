@@ -12,16 +12,16 @@ ax.set_ylim(-10e7, 10e7)
 G=6.67430e-11 # [m3/kgs2]
 datapoints=1000
 dt=10
-cycles=40000
+cycles=30000
 storefrequency=40
 showfrequency=100
 imp=False
-export=True
+export=False
 
 planets = [
    Satellite(name="Asteroid1", mass=4.0e24,
               pos=np.array([0.0, 4.27e7]),
-              vel=np.array([-1.5e3, 0.0]),
+              vel=np.array([-2.0e3, 0.0]),
               datapoints=datapoints),
 
     Satellite(name="Asteroid2", mass=4.0e24,
@@ -30,7 +30,7 @@ planets = [
               datapoints=datapoints),
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, -4.27e7]),
-              vel=np.array([-5.0e2, 0.0]),
+              vel=np.array([2.0e2, 0.0]),
               datapoints=datapoints),
     
 ]
