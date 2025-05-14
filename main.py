@@ -12,30 +12,27 @@ ax.set_ylim(-10e7, 10e7)
 G=6.67430e-11 # [m3/kgs2]
 datapoints=1000
 dt=10
-cycles=25000
+cycles=40000
 storefrequency=40
 showfrequency=100
 imp=False
-export=False
+export=True
 
 planets = [
    Satellite(name="Asteroid1", mass=4.0e24,
               pos=np.array([0.0, 4.27e7]),
-              vel=np.array([-1.8e3, -2.0e3]),
+              vel=np.array([-1.5e3, 0.0]),
               datapoints=datapoints),
 
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, 0.0]),
-              vel=np.array([2.0e3, -2.0e3]),
+              vel=np.array([2.0e3, 0.0]),
               datapoints=datapoints),
     Satellite(name="Asteroid2", mass=4.0e24,
-              pos=np.array([4.27e7, 0.0]),
-              vel=np.array([2.0e3, 2.0e3]),
+              pos=np.array([0.0, -4.27e7]),
+              vel=np.array([-5.0e2, 0.0]),
               datapoints=datapoints),
-    Satellite(name="Asteroid2", mass=4.0e24,
-              pos=np.array([4.27e7, 4.27e7]),
-              vel=np.array([-2.0e3, 2.0e3]),
-              datapoints=datapoints)
+    
 ]
 
 if imp==True:
@@ -49,7 +46,7 @@ imp=False
 
 if export==True:
     out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
-    with open("Fourbody3.json", "w") as fout:
+    with open("Threebody2.json", "w") as fout:
         fout.write(out_lst)
 
 
