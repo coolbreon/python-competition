@@ -7,7 +7,6 @@ fig, ax = plt.subplots()
 
 class Satellite:
 
-
     name: str
     mass: float
     position: NDArray[np.float64]
@@ -24,7 +23,7 @@ class Satellite:
         name: name of the object (e.g. Moon)
         mass: mass of the object in[kg] (e.g.7.348e22)
         pos: initial position vector [m,m] (e.g. [0, 384000000])
-        vel: initial velocity vector [m/s, m/s] (e.g [-1023,0]
+        vel: initial velocity vector [m/s, m/s] (e.g [-1023,0])
         datapoints: number of stored datapoints
         """
         self.name=name
@@ -32,10 +31,8 @@ class Satellite:
         self.position=pos
         self.velocity=vel
         self.position_history=np.zeros((datapoints,2), dtype=np.float64)
-        self.position_history[0]=self.position.copy()   
-        #self.firstIndex = 0
-        #self.lastIndex = 1
-        #self.maxIndex = datapoints
+        for i in range(datapoints):
+            self.position_history[i]=self.position.copy()
 
     #Take values from user:
     def take_input(self):
@@ -61,13 +58,21 @@ class Satellite:
                 f"\tPosition: {self.position[0]:.1f}, {self.position[1]:.1f} [m] \n"
                 f"\tVelocity: {self.position[0]:.1f}, {self.position[1]:.1f} [m/s]")
     
+    def __dict__(self) ->dict:
+        return({'name':self.name, 
+                'mass':self.mass,
+                'position':self.position.tolist(),
+                'velocity':self.velocity.tolist()})
+    
+    
     #modifies position and velocity 
     def move(self,dt):
         '''
         Iterates the position with the speed. 
         Also stores the new position in the self.history array.
         '''
-        self.position=self.position+self.velocity*dt
+        self.position+=self.velocity*dt
+
     def store(self,i):
         '''
         Stores the current position in the ith place of the history list
@@ -81,6 +86,7 @@ class Satellite:
         '''
         return(np.concatenate((self.position_history[i+1:], self.position_history[:i+1])))
       
+
 def acceleration(sat1,sat2,G,dt):
         '''
         Calculates the gravitational force between two objects.
@@ -102,6 +108,19 @@ def acceleration(sat1,sat2,G,dt):
         #Iteration
         sat1.velocity=sat1.velocity+a1*dt
         sat2.velocity=sat2.velocity+a2*dt
+
+
+def importjson(lst,datapoints):
+    planets=[]
+    for p in lst:
+        planets.append(
+            Satellite(name=p['name'], 
+                mass=['mass'],
+                pos=np.array(p['position']),
+                vel=np.array(p['velocity'] ),
+                datapoints=datapoints))
+    return(planets)
+
 
 class Trajectory:
     def __init__(self):#data is the number of stored datapoints
