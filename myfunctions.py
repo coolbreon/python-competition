@@ -12,6 +12,7 @@ class Satellite:
     position: NDArray[np.float64]
     velocity: NDArray[np.float64]
     position_history: NDArray[np.float64]
+    init_energy: float
     #firstIndex: int                       # First index with stored data
     #lastIndex: int                        # Next free index for storing data
     #maxIndex: int                         # Number of stored data points
@@ -30,6 +31,8 @@ class Satellite:
         self.mass=mass
         self.position=pos
         self.velocity=vel
+        self.initial_energy=np.linalg.norm(vel)**2/2
+        self.actual_energy=self.initial_energy
         self.position_history=np.zeros((datapoints,2), dtype=np.float64)
         for i in range(datapoints):
             self.position_history[i]=self.position.copy()
@@ -85,6 +88,29 @@ class Satellite:
         i is the last position with stored data
         '''
         return(np.concatenate((self.position_history[i+1:], self.position_history[:i+1])))
+'''   
+    def change_energy(self,planet,G):
+        r_vec=self.position-planet.position
+        self.initial_energy-=G*(self.mass+planet.mass)/(np.linalg.norm(r_vec))
+'''
+
+'''
+def initialize_energy(planets,G):
+    for i, p1 in enumerate(planets):
+        for p2 in planets[i+1:]:
+            p1.change_energy(p2,G)
+            p2.change_energy(p1,G)
+
+def actual_energy(planets,G):
+    for i, p1 in enumerate(planets):
+        p1.actual_energy=np.linalg.norm(p1.velocity)**2/2
+        for p2 in planets:
+            if p2!=p1:
+                p1.actual_energy-=G*(p1.mass+p2.mass)/(np.linalg.norm(p1.position-p2.position))
+'''    
+        
+            
+
       
 
 def acceleration(sat1,sat2,G,dt):
@@ -159,4 +185,14 @@ class Trajectory:
         Ell = Rot@Ell0
         ellipse, =ax.plot(self.center[0]+Ell[0,:], self.center[1]+Ell[1,:])
         return ellipse
-        
+
+def new_frame(planet, maxposx, maxposy): #Finds new maxima and minima to which the coordinate frame should be adjusted
+    if planet.position[0] > maxposx[1]:
+        maxposx[1]=planet.position[0]
+    elif planet.position[0] < maxposx[0]:
+        maxposx[0]=planet.position[0]
+    if planet.position[1] > maxposy[1]:
+        maxposy[1]=planet.position[1]
+    elif planet.position[1] < maxposy[0]:
+        maxposy[0]=planet.position[1]
+    return [maxposx,maxposy]
