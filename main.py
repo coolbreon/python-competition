@@ -31,9 +31,9 @@ planets = [
 ]
 
 if imp==True:
-    with open('Sat1.json', 'r') as fin:
+    with open('Preset1.json', 'r') as fin:
         importlst=json.load(fin)
-    planets = importjson(importlst,datapoints)
+    planets=importjson(importlst,datapoints)
 
 
 

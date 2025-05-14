@@ -99,7 +99,7 @@ def acceleration(sat1,sat2,G,dt):
         unit_vector = r_vec/dist                      
         
         #Calculate the unit vector pointing from self planet to other planet
-        F=unit_vector*(G*sat1.mass*sat2.mass)/(dist**2)    
+        F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
         
         #Newton's second law
         a1=-F/sat1.mass                                    
@@ -113,9 +113,10 @@ def acceleration(sat1,sat2,G,dt):
 def importjson(lst,datapoints):
     planets=[]
     for p in lst:
+        print(p)
         planets.append(
             Satellite(name=p['name'], 
-                mass=['mass'],
+                mass=float(p['mass']),
                 pos=np.array(p['position']),
                 vel=np.array(p['velocity'] ),
                 datapoints=datapoints))
