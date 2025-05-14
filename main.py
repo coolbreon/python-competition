@@ -12,31 +12,31 @@ ax.set_ylim(-10e7, 10e7)
 G=6.67430e-11 # [m3/kgs2]
 datapoints=1000
 dt=10
-cycles=30000
+cycles=45000
 storefrequency=40
 showfrequency=100
-imp=False
-export=True
+imp=True
+export=False
 
 planets = [
    Satellite(name="Asteroid1", mass=4.0e24,
               pos=np.array([0.0, 4.27e7]),
-              vel=np.array([-2.7e3, 0.0]),
+              vel=np.array([-3.0e3, 0.0]),
               datapoints=datapoints),
 
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, 0.0]),
-              vel=np.array([3.0e3, 0.0]),
+              vel=np.array([3.5e3, 0.0]),
               datapoints=datapoints),
     Satellite(name="Asteroid2", mass=4.0e24,
               pos=np.array([0.0, -4.27e7]),
-              vel=np.array([-3.0e2, 0.0]),
+              vel=np.array([-5.0e2, 0.0]),
               datapoints=datapoints),
     
 ]
 
 if imp==True:
-    with open('Threebody1.json', 'r') as fin:
+    with open('Threebody3.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
