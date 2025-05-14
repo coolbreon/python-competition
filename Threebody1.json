@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Asteroid1",
+        "mass": 4e+24,
+        "position": [
+            0.0,
+            42700000.0
+        ],
+        "velocity": [
+            1500.0,
+            150.0
+        ]
+    },
+    {
+        "name": "Asteroid2",
+        "mass": 4e+24,
+        "position": [
+            0.0,
+            0.0
+        ],
+        "velocity": [
+            -2500.0,
+            0.0
+        ]
+    },
+    {
+        "name": "Asteroid3",
+        "mass": 4e+24,
+        "position": [
+            42700000.0,
+            0.0
+        ],
+        "velocity": [
+            0.0,
+            -2000.0
+        ]
+    }
+]
