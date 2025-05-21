@@ -10,32 +10,29 @@ ax.set_ylim(-10e7, 10e7)
 
 #Contants
 G=6.67430e-11 # [m3/kgs2]
-datapoints=1000
-dt=10
-storefrequency=40
+datapoints=6000
+dt=3
+storefrequency=10
 showfrequency=100
 imp=True
 export=False
 
 planets = [
-   Satellite(name="Asteroid1", mass=4.0e24,
-              pos=np.array([0.0, 4.27e7]),
-              vel=np.array([-3.0e3, 0.0]),
+   Satellite(name="Earth", mass=5.972e+24,
+              pos=np.array([0.0, 0.0]),
+              vel=np.array([0.0, 0.0]),
               datapoints=datapoints),
 
-    Satellite(name="Asteroid2", mass=4.0e24,
-              pos=np.array([0.0, 0.0]),
-              vel=np.array([3.5e3, 0.0]),
+    Satellite(name="Sat", mass=4.0e3,
+              pos=np.array([0.0, 4.27e7]),
+              vel=np.array([1.0e3, 0.0]),
               datapoints=datapoints),
-    Satellite(name="Asteroid2", mass=4.0e24,
-              pos=np.array([0.0, -4.27e7]),
-              vel=np.array([-5.0e2, 0.0]),
-              datapoints=datapoints),
+    
     
 ]
 
 if imp==True:
-    with open('Threebody1.json', 'r') as fin:
+    with open('presets/Threebody1.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -45,7 +42,7 @@ imp=False
 
 if export==True:
     out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
-    with open("Threebody3.json", "w") as fout:
+    with open("presets/Sat2.json", "w") as fout:
         fout.write(out_lst)
 
 
@@ -92,7 +89,9 @@ while True:
             ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
             ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
             plt.pause(1.0e-11)
-    f+=1 
+    f+=1
+
+
 
 
 plt.ioff()
