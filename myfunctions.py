@@ -108,10 +108,25 @@ def actual_energy(planets,G):
             if p2!=p1:
                 p1.actual_energy-=G*(p1.mass+p2.mass)/(np.linalg.norm(p1.position-p2.position))
 '''    
-        
-            
 
-      
+
+class Modes:
+    running: bool
+    paused: bool
+    def __init__(self):
+        self.running=True
+        self.paused=False
+    def spaceclick(self):
+        if self.paused:
+            self.paused=False
+        else:
+            self.paused=True
+    def closeing(self):
+        self.running=False
+
+
+
+         
 
 def acceleration(sat1,sat2,G,dt):
         '''
@@ -147,6 +162,7 @@ def importjson(lst,datapoints):
                 vel=np.array(p['velocity'] ),
                 datapoints=datapoints))
     return(planets)
+
 
 
 class Trajectory:

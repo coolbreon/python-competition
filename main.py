@@ -1,18 +1,30 @@
 from myfunctions import *
 import json
 
+def close(event):
+    modes.closeing()
+    print(modes.running)
+
+def key(event):
+    if event.key==' ':
+        modes.spaceclick()
+
+
 
 plt.ion()
+
 ax.set_aspect('equal', adjustable='box')
 ax.set_title("Simulation (Testing Movement)")
 ax.set_xlim(-10e7, 10e7)
 ax.set_ylim(-10e7, 10e7)
 
+
+
 #Contants
 G=6.67430e-11 # [m3/kgs2]
 datapoints=6000
-dt=3
-storefrequency=10
+dt=10
+storefrequency=50
 showfrequency=100
 imp=True
 export=False
@@ -32,7 +44,7 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Threebody1.json', 'r') as fin:
+    with open('presets/Threebody2.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -54,45 +66,58 @@ for i, marker in enumerate(lineheads):
 
 #initialize_energy(planets,G)
 
+
+#initialzize variables
+modes=Modes()
+
 storeline=0
 f=0
 maxposx= [0,0]
 maxposy= [0,0]
+
+#connects the click event to the canvas and gives it an ID
+closeid = plt.gcf().canvas.mpl_connect('close_event',close)
+keyid = plt.gcf().canvas.mpl_connect('key_press_event',key)
+
+
 #print(sum(i.initial_energy for i in planets))
 '''
     actual_energy(planets,G)
     if f%5000==0:
         print(sum(i.actual_energy for i in planets))
 '''
-while True:
-    for l, p1 in enumerate(planets):
-        for p2 in planets[l+1:]:
-            acceleration(p1,p2,G,dt)
-        [maxposx,maxposy]=new_frame(p1,maxposx,maxposy)
-    for p in planets:
-        p.move(dt)
 
-     
-    if f%storefrequency==0:
-        storeline+=1
-        if storeline==datapoints:
-            storeline=0
+while modes.running:
+    if not modes.paused:
+        for l, p1 in enumerate(planets):
+            for p2 in planets[l+1:]:
+                acceleration(p1,p2,G,dt)
+            [maxposx,maxposy]=new_frame(p1,maxposx,maxposy)
         for p in planets:
-            p.store(storeline)
+            p.move(dt)
 
+        
+        if f%storefrequency==0:
+            storeline+=1
+            if storeline==datapoints:
+                storeline=0
+            for p in planets:
+                p.store(storeline)
 
-    if f%showfrequency==0:
-        for i,p in enumerate(planets):
-            data = p.getHistory(storeline)
-            lineheads[i].set_data([p.position[0]], [p.position[1]])
-            lines[i].set_data(data[:, 0], data[:, 1])
-            ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
-            ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
-            plt.pause(1.0e-11)
-    f+=1
+        
+        if f%showfrequency==0:
+            for i,p in enumerate(planets):
+                data = p.getHistory(storeline)
+                lineheads[i].set_data([p.position[0]], [p.position[1]])
+                lines[i].set_data(data[:, 0], data[:, 1])
+                ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
+                ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
+                plt.pause(0.0001)
+                
 
-
-
-
+        f+=1
+    else:
+        plt.pause(0.3)
 plt.ioff()
 plt.show()
+print('exiting...')
