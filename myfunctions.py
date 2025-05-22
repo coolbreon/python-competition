@@ -113,20 +113,45 @@ def actual_energy(planets,G):
 class Modes:
     running: bool
     paused: bool
-    def __init__(self):
+    #canvas: plt.figure.Figure
+    hoverid: int
+    clickid: int
+    hovered: NDArray[np.float64] #last hovered point
+    arrows: bool #velocity arrows visible
+    def __init__(self,canvas):
         self.running=True
         self.paused=False
+        self.canvas=canvas
+        self.hovered=np.array([0.0,0.0])
+        self.arrows=False
     def spaceclick(self):
         if self.paused:
             self.paused=False
+            plt.gcf().canvas.mpl_disconnect(self.hoverid)
+            
+            self.arrows=False
         else:
             self.paused=True
-    def closeing(self):
+            self.hoverid=plt.gcf().canvas.mpl_connect('motion_notify_event',self.hover)
+    def key(self,event):
+        if event.key==' ':
+            self.spaceclick()
+    
+    def closeing(self,event):
         self.running=False
+    def hover(self,event):
+        self.hovered=np.array([event.xdata,event.ydata])
 
 
-
-         
+def closeto(arr1:NDArray,arr2:NDArray,maxposx,maxposy):
+    trashold=0.04
+    maxaxislength=max(maxposx[1]-maxposx[0],maxposy[1]-maxposy[0])
+    
+    if np.linalg.norm(arr1-arr2)<maxaxislength*trashold:
+        return True
+    else:
+        return False
+  
 
 def acceleration(sat1,sat2,G,dt):
         '''
@@ -135,7 +160,7 @@ def acceleration(sat1,sat2,G,dt):
         '''
 
         #Calculate distance
-        r_vec=sat1.position-sat2.position
+        r_vec = sat1.position-sat2.position
         dist = np.linalg.norm(r_vec)
         unit_vector = r_vec/dist                      
         
@@ -154,7 +179,7 @@ def acceleration(sat1,sat2,G,dt):
 def importjson(lst,datapoints):
     planets=[]
     for p in lst:
-        print(p)
+        
         planets.append(
             Satellite(name=p['name'], 
                 mass=float(p['mass']),
@@ -163,46 +188,10 @@ def importjson(lst,datapoints):
                 datapoints=datapoints))
     return(planets)
 
-
-
-class Trajectory:
-    def __init__(self):#data is the number of stored datapoints
-        self.center = np.array([0,0]) 
-        self.a = 1000 #[m]
-        self.b = 1000 #[m]
-        self.angle = 0 #[rad]
-    def calculate(self, pos, vel, earth,G):
-        
-        mu=earth.mass*G #calculates the planetary constant of the body in the centrum
-        
-        r_vec =pos-earth.position[0]
-        d=np.linalg.norm(r_vec) #calculates the distance between the bodies
-        
-        H=np.linalg.norm(np.cross(r_vec,vel)) #calculates the angular momentum
-        E=0.5*np.dot(vel,vel)-mu/d #calculates the energy
-        self.a=-mu/(2*E)   #calculates the semi major axis
-        P=(H**2)/mu       #calculates the ellipse parameter
-        ex=sqrt(1-P/self.a) #calculates the eccentricity
-        self.b=self.a*sqrt(1-ex**2) #calculates the semi minor axis
-        theta=acos((P-d)/(d*ex))    #calculates the true anomaly
-        alpha=2*atan(tan(theta/2)*sqrt((1+ex)/(1-ex))) #eccentric anomaly
-        try:
-            self.angle=atan(r_vec[0]/r_vec[1])-alpha
-        except: 
-            self.angle=pi/4-alpha
-        rp=self.a*(1-ex)
-        self.center=earth.position[0]-(self.a-rp)*np.array([cos(self.angle),sin(self.angle)])
-
-    def visualise(self):
-        t=np.linspace(0,2*pi,50)
-        Ell0=np.array([self.a*np.cos(t),self.b*np.sin(t)])
-        Rot=np.array([[cos(self.angle) , -sin(self.angle)],[sin(self.angle) , cos(self.angle)]])
-        Ell = np.zeros((2,Ell0.shape[1]))
-        Ell = Rot@Ell0
-        ellipse, =ax.plot(self.center[0]+Ell[0,:], self.center[1]+Ell[1,:])
-        return ellipse
-
-def new_frame(planet, maxposx, maxposy): #Finds new maxima and minima to which the coordinate frame should be adjusted
+def new_frame(planet, maxposx, maxposy): 
+    '''
+    Finds new maxima and minima to which the coordinate frame should be adjusted
+    '''
     if planet.position[0] > maxposx[1]:
         maxposx[1]=planet.position[0]
     elif planet.position[0] < maxposx[0]:

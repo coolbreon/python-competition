@@ -1,10 +1,6 @@
 from myfunctions import *
 import json
 
-def close(event):
-    modes.closeing()
-    print(modes.running)
-
 def key(event):
     if event.key==' ':
         modes.spaceclick()
@@ -68,7 +64,7 @@ for i, marker in enumerate(lineheads):
 
 
 #initialzize variables
-modes=Modes()
+modes=Modes(plt.gcf().canvas)
 
 storeline=0
 f=0
@@ -76,8 +72,8 @@ maxposx= [0,0]
 maxposy= [0,0]
 
 #connects the click event to the canvas and gives it an ID
-closeid = plt.gcf().canvas.mpl_connect('close_event',close)
-keyid = plt.gcf().canvas.mpl_connect('key_press_event',key)
+closeid = plt.gcf().canvas.mpl_connect('close_event',modes.closeing)
+keyid = plt.gcf().canvas.mpl_connect('key_press_event',modes.key)
 
 
 #print(sum(i.initial_energy for i in planets))
@@ -92,7 +88,7 @@ while modes.running:
         for l, p1 in enumerate(planets):
             for p2 in planets[l+1:]:
                 acceleration(p1,p2,G,dt)
-            [maxposx,maxposy]=new_frame(p1,maxposx,maxposy)
+            [maxposx,maxposy] = new_frame(p1,maxposx,maxposy)
         for p in planets:
             p.move(dt)
 
@@ -117,7 +113,24 @@ while modes.running:
 
         f+=1
     else:
-        plt.pause(0.3)
+        
+
+        #makes the planet hovered over pop
+        for a,p in enumerate(planets):
+            lines[a].set_alpha(1)
+            
+            try:
+                isactive=closeto(modes.hovered,p.position,maxposx,maxposy)
+            except:
+                isactive=False
+            if isactive:
+                for k,traj in enumerate(lines):
+                    if k!=a:
+                        traj.set_alpha(0.2) 
+                break    
+        plt.pause(0.1)
+        for traj in lines:
+            traj.set_alpha(1)  
 plt.ioff()
 plt.show()
 print('exiting...')
