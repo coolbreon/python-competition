@@ -133,6 +133,7 @@ class Modes:
         else:
             self.paused=True
             self.hoverid=plt.gcf().canvas.mpl_connect('motion_notify_event',self.hover)
+            self.arrows=True
     def key(self,event):
         if event.key==' ':
             self.spaceclick()

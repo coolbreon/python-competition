@@ -19,7 +19,7 @@ ax.set_ylim(-10e7, 10e7)
 #Contants
 G=6.67430e-11 # [m3/kgs2]
 datapoints=6000
-dt=10
+dt=3
 storefrequency=50
 showfrequency=100
 imp=True
@@ -40,7 +40,7 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Threebody2.json', 'r') as fin:
+    with open('presets/Fourbody3.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -70,6 +70,7 @@ storeline=0
 f=0
 maxposx= [0,0]
 maxposy= [0,0]
+arrows=[]
 
 #connects the click event to the canvas and gives it an ID
 closeid = plt.gcf().canvas.mpl_connect('close_event',modes.closeing)
@@ -112,8 +113,12 @@ while modes.running:
                 
 
         f+=1
-    else:
-        
+    else:     
+        if modes.arrows: 
+            for p in planets:
+                arrows.append(plt.arrow(p.position[0],p.position[1],
+                                        p.velocity[0]*5e3,p.velocity[1]*5e3, 
+                                        width= 0.2, head_width=1000000))
 
         #makes the planet hovered over pop
         for a,p in enumerate(planets):
@@ -127,10 +132,13 @@ while modes.running:
                 for k,traj in enumerate(lines):
                     if k!=a:
                         traj.set_alpha(0.2) 
-                break    
+                break
         plt.pause(0.1)
         for traj in lines:
-            traj.set_alpha(1)  
+            traj.set_alpha(1)
+        for a in arrows:
+            a.remove()
+        arrows.clear()
 plt.ioff()
 plt.show()
 print('exiting...')
