@@ -6,14 +6,12 @@ def key(event):
         modes.spaceclick()
 
 
-
 plt.ion()
 
 ax.set_aspect('equal', adjustable='box')
 ax.set_title("Simulation (Testing Movement)")
 ax.set_xlim(-10e7, 10e7)
 ax.set_ylim(-10e7, 10e7)
-
 
 
 #Contants
@@ -53,14 +51,14 @@ if export==True:
     with open("presets/Sat2.json", "w") as fout:
         fout.write(out_lst)
 
-
+#Initialize lines and point masses to be plotted
 lineheads = [ax.plot([], [], 'o', markersize=6)[0] for _ in planets]
 lines = [ax.plot([], [], '-')[0] for _ in planets]
+#Initialize the energy text to be plotted
+energy_text = ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
 
 for i, marker in enumerate(lineheads):
     marker.set_label(planets[i].name)
-
-#initialize_energy(planets,G)
 
 
 #initialzize variables
@@ -76,15 +74,9 @@ arrows=[]
 closeid = plt.gcf().canvas.mpl_connect('close_event',modes.closeing)
 keyid = plt.gcf().canvas.mpl_connect('key_press_event',modes.key)
 
-
-#print(sum(i.initial_energy for i in planets))
-'''
-    actual_energy(planets,G)
-    if f%5000==0:
-        print(sum(i.actual_energy for i in planets))
-'''
-energy_text = ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
+#Energy at t=0
 e_0 = get_system_energy(planets,G)
+
 while modes.running:
     if not modes.paused:
         for l, p1 in enumerate(planets):
@@ -93,7 +85,6 @@ while modes.running:
             [maxposx,maxposy] = new_frame(p1,maxposx,maxposy)
         for p in planets:
             p.move(dt)
-
         
         if f%storefrequency==0:
             storeline+=1
