@@ -190,3 +190,15 @@ def get_system_energy(planets,G,):
         for j,q in enumerate(planets[(i+1):]):
             e_potential-=G*p.mass*q.mass/np.linalg.norm(p.position-q.position)
     return e_kinetic+e_potential
+
+def convert_time(t):
+    s=t%60
+    t=t//60
+    m=t%60
+    t=t//60
+    h=t%24
+    t=t//24
+    d=t%365
+    t=t//365
+    y=t
+    return(f'{y} years,\n{d} days,\n{h} hours,\n{m} minutes and\n{s} seconds')

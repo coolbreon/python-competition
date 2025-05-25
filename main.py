@@ -19,7 +19,7 @@ G=6.67430e-11 # [m3/kgs2]
 datapoints=6000
 dt=3
 storefrequency=50
-showfrequency=100
+showfrequency=200
 imp=True
 export=False
 
@@ -38,7 +38,7 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Fourbody2.json', 'r') as fin:
+    with open('presets/Threebody2.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -54,12 +54,13 @@ if export==True:
 #Initialize lines and point masses to be plotted
 lineheads = [ax.plot([], [], 'o', markersize=6)[0] for _ in planets]
 lines = [ax.plot([], [], '-')[0] for _ in planets]
-#Initialize the energy text to be plotted
-energy_text = ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
+#Initialize the energy and time text to be plotted
+energy_text = ax.text(1.05,0.3, '', fontsize=12, transform=ax.transAxes)
+time_text =ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
 
 for i, marker in enumerate(lineheads):
     marker.set_label(planets[i].name)
-
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 #initialzize variables
 modes=Modes(plt.gcf().canvas)
@@ -101,7 +102,8 @@ while modes.running:
                 lines[i].set_data(data[:, 0], data[:, 1])
                 ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
-                energy_text.set_text(f"Energy (% of t=0):\n{100*get_system_energy(planets,G)/e_0:0.3f}%")
+                energy_text.set_text(f"Energy change(% of t=0):\n{100*get_system_energy(planets,G)/e_0-100:0.3f}%")
+                time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
                 plt.pause(0.0001)
 
         f+=1
