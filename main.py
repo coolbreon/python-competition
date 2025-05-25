@@ -40,7 +40,7 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Fourbody3.json', 'r') as fin:
+    with open('presets/Fourbody2.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -83,7 +83,8 @@ keyid = plt.gcf().canvas.mpl_connect('key_press_event',modes.key)
     if f%5000==0:
         print(sum(i.actual_energy for i in planets))
 '''
-
+energy_text = ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
+e_0 = get_system_energy(planets,G)
 while modes.running:
     if not modes.paused:
         for l, p1 in enumerate(planets):
@@ -109,8 +110,8 @@ while modes.running:
                 lines[i].set_data(data[:, 0], data[:, 1])
                 ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
+                energy_text.set_text(f"Energy (% of t=0):\n{100*get_system_energy(planets,G)/e_0:0.3f}%")
                 plt.pause(0.0001)
-                
 
         f+=1
     else:     

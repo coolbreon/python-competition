@@ -88,27 +88,6 @@ class Satellite:
         i is the last position with stored data
         '''
         return(np.concatenate((self.position_history[i+1:], self.position_history[:i+1])))
-'''   
-    def change_energy(self,planet,G):
-        r_vec=self.position-planet.position
-        self.initial_energy-=G*(self.mass+planet.mass)/(np.linalg.norm(r_vec))
-'''
-
-'''
-def initialize_energy(planets,G):
-    for i, p1 in enumerate(planets):
-        for p2 in planets[i+1:]:
-            p1.change_energy(p2,G)
-            p2.change_energy(p1,G)
-
-def actual_energy(planets,G):
-    for i, p1 in enumerate(planets):
-        p1.actual_energy=np.linalg.norm(p1.velocity)**2/2
-        for p2 in planets:
-            if p2!=p1:
-                p1.actual_energy-=G*(p1.mass+p2.mass)/(np.linalg.norm(p1.position-p2.position))
-'''    
-
 
 class Modes:
     running: bool
@@ -202,3 +181,12 @@ def new_frame(planet, maxposx, maxposy):
     elif planet.position[1] < maxposy[0]:
         maxposy[0]=planet.position[1]
     return [maxposx,maxposy]
+
+def get_system_energy(planets,G,):
+    e_kinetic=0.0
+    e_potential=0.0
+    for i,p in enumerate(planets):
+        e_kinetic+=0.5*p.mass*(np.linalg.norm(p.velocity))**2
+        for j,q in enumerate(planets[(i+1):]):
+            e_potential-=G*p.mass*q.mass/np.linalg.norm(p.position-q.position)
+    return e_kinetic+e_potential
