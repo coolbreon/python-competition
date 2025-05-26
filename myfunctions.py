@@ -13,10 +13,8 @@ class Satellite:
     velocity: NDArray[np.float64]
     position_history: NDArray[np.float64]
     init_energy: float
-    #firstIndex: int                       # First index with stored data
-    #lastIndex: int                        # Next free index for storing data
-    #maxIndex: int                         # Number of stored data points
-
+    hovered : bool
+    selected : bool
     def __init__(self, name:str, mass:float, pos:NDArray[np.float64],vel:NDArray[np.float64],datapoints=1024):
         """
         Initializes the class.
@@ -34,6 +32,8 @@ class Satellite:
         self.initial_energy=np.linalg.norm(vel)**2/2
         self.actual_energy=self.initial_energy
         self.position_history=np.zeros((datapoints,2), dtype=np.float64)
+        self.hovered=False
+        self.selected=False
         for i in range(datapoints):
             self.position_history[i]=self.position.copy()
 
