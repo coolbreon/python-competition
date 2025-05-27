@@ -71,9 +71,8 @@ maxposx= [0,0]
 maxposy= [0,0]
 arrows=[]
 
-#connects the click event to the canvas and gives it an ID
-closeid = plt.gcf().canvas.mpl_connect('close_event',modes.closeing)
-keyid = plt.gcf().canvas.mpl_connect('key_press_event',modes.key)
+for p in planets:
+            p.connect()
 
 #Energy at t=0
 e_0 = get_system_energy(planets,G)
@@ -83,7 +82,7 @@ while modes.running:
         for l, p1 in enumerate(planets):
             for p2 in planets[l+1:]:
                 acceleration(p1,p2,G,dt)
-            [maxposx,maxposy] = new_frame(p1,maxposx,maxposy)
+            
         for p in planets:
             p.move(dt)
         
@@ -100,6 +99,7 @@ while modes.running:
                 data = p.getHistory(storeline)
                 lineheads[i].set_data([p.position[0]], [p.position[1]])
                 lines[i].set_data(data[:, 0], data[:, 1])
+                maxposx,maxposy = new_frame(p,maxposx,maxposy)
                 ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
                 energy_text.set_text(f"Energy change(% of t=0):\n{100*get_system_energy(planets,G)/e_0-100:0.3f}%")
@@ -107,32 +107,32 @@ while modes.running:
                 plt.pause(0.0001)
 
         f+=1
-    else:     
+    else:
+        
         if modes.arrows: 
             for p in planets:
                 arrows.append(plt.arrow(p.position[0],p.position[1],
                                         p.velocity[0]*5e3,p.velocity[1]*5e3, 
                                         width= 0.2, head_width=1000000))
+                
+        for i,p in enumerate(planets):
+            lineheads[i].set_data([p.position[0]], [p.position[1]])
+            if p.hovered:
+                for n,pl in enumerate(planets):
+                    if n!=i:
+                        lines[n].set_alpha(0.2)
+                        if modes.arrows:
+                            arrows[n].set_alpha(0.2)
 
         #makes the planet hovered over pop
-        for a,p in enumerate(planets):
-            lines[a].set_alpha(1)
-            
-            try:
-                isactive=closeto(modes.hovered,p.position,maxposx,maxposy)
-            except:
-                isactive=False
-            if isactive:
-                for k,traj in enumerate(lines):
-                    if k!=a:
-                        traj.set_alpha(0.2) 
-                break
         plt.pause(0.1)
-        for traj in lines:
-            traj.set_alpha(1)
+        
         for a in arrows:
             a.remove()
         arrows.clear()
+
+        for n,pl in enumerate(planets):    
+            lines[n].set_alpha(1)
 plt.ioff()
 plt.show()
 print('exiting...')

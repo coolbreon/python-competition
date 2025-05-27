@@ -13,8 +13,16 @@ class Satellite:
     velocity: NDArray[np.float64]
     position_history: NDArray[np.float64]
     init_energy: float
+
+    maxpos : np.float64
     hovered : bool
     selected : bool
+    draged : bool
+
+    pressid : int
+    hoverid : int
+    releaseid : int
+
     def __init__(self, name:str, mass:float, pos:NDArray[np.float64],vel:NDArray[np.float64],datapoints=1024):
         """
         Initializes the class.
@@ -32,8 +40,15 @@ class Satellite:
         self.initial_energy=np.linalg.norm(vel)**2/2
         self.actual_energy=self.initial_energy
         self.position_history=np.zeros((datapoints,2), dtype=np.float64)
+
+        self.maxpos=max(self.position[0],self.position[1])
         self.hovered=False
         self.selected=False
+        self.draged=False
+
+        self.hoverid=None
+        self.pressid=None
+        self.releaseid=None
         for i in range(datapoints):
             self.position_history[i]=self.position.copy()
 
@@ -88,6 +103,49 @@ class Satellite:
         i is the last position with stored data
         '''
         return(np.concatenate((self.position_history[i+1:], self.position_history[:i+1])))
+    
+    def connect(self):
+        self.hoverid=plt.gcf().canvas.mpl_connect('motion_notify_event',self.on_hover)
+        self.pressid=plt.gcf().canvas.mpl_connect('button_press_event',self.on_click)
+        self.releaseid=plt.gcf().canvas.mpl_connect('button_release_event',self.on_release)
+
+    def disconnect(self):
+        plt.gcf().canvas.mpl_disconnect(self.hoverid)
+        plt.gcf().canvas.mpl_disconnect(self.pressid)
+        plt.gcf().canvas.mpl_disconnect(self.releaseid)
+    
+    def on_hover(self,event):
+        if event.xdata==None or event.ydata==None:
+            return
+
+        if closeto(self.position,np.array([event.xdata,event.ydata]),1e8):
+                self.hovered=True
+        else:
+            self.hovered=False
+
+        if self.draged:
+            self.position=np.array([event.xdata,event.ydata])
+    
+    def on_click(self,event):
+        if event.xdata==None or event.ydata==None:
+            self.selected=False
+            return
+        close=closeto(self.position,np.array([event.xdata,event.ydata]),1e8)
+        if close:
+            if event.button==1:
+                self.draged=True
+                print('draged')
+
+            if event.button==3:
+                self.selected=True
+                print(self)
+        else:
+            self.selected=False
+    
+    def on_release(self,event):
+        self.draged=False
+
+
 
 class Modes:
     running: bool
@@ -103,15 +161,15 @@ class Modes:
         self.canvas=canvas
         self.hovered=np.array([0.0,0.0])
         self.arrows=False
+        self.closeid = plt.gcf().canvas.mpl_connect('close_event',self.closeing)
+        self.keyid = plt.gcf().canvas.mpl_connect('key_press_event',self.key)
     def spaceclick(self):
         if self.paused:
-            self.paused=False
-            plt.gcf().canvas.mpl_disconnect(self.hoverid)
-            
+            self.paused=False          
             self.arrows=False
         else:
             self.paused=True
-            self.hoverid=plt.gcf().canvas.mpl_connect('motion_notify_event',self.hover)
+            
             self.arrows=True
     def key(self,event):
         if event.key==' ':
@@ -119,15 +177,11 @@ class Modes:
     
     def closeing(self,event):
         self.running=False
-    def hover(self,event):
-        self.hovered=np.array([event.xdata,event.ydata])
 
-
-def closeto(arr1:NDArray,arr2:NDArray,maxposx,maxposy):
+def closeto(arr1:NDArray,arr2:NDArray,maxpos):
     trashold=0.04
-    maxaxislength=max(maxposx[1]-maxposx[0],maxposy[1]-maxposy[0])
     
-    if np.linalg.norm(arr1-arr2)<maxaxislength*trashold:
+    if np.linalg.norm(arr1-arr2)<maxpos*trashold:
         return True
     else:
         return False
@@ -180,7 +234,7 @@ def new_frame(planet, maxposx, maxposy):
         maxposy[1]=planet.position[1]
     elif planet.position[1] < maxposy[0]:
         maxposy[0]=planet.position[1]
-    return [maxposx,maxposy]
+    return maxposx,maxposy
 
 def get_system_energy(planets,G,):
     e_kinetic=0.0
