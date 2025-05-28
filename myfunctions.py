@@ -3,6 +3,8 @@ import numpy as np
 from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 from math import *
+import json
+
 fig, ax = plt.subplots()
 
 class Satellite:
@@ -22,6 +24,7 @@ class Satellite:
     pressid : int
     hoverid : int
     releaseid : int
+    keyid : int
 
     def __init__(self, name:str, mass:float, pos:NDArray[np.float64],vel:NDArray[np.float64],datapoints=1024):
         """
@@ -49,6 +52,8 @@ class Satellite:
         self.hoverid=None
         self.pressid=None
         self.releaseid=None
+        self.keyid=None
+
         for i in range(datapoints):
             self.position_history[i]=self.position.copy()
 
@@ -108,11 +113,13 @@ class Satellite:
         self.hoverid=plt.gcf().canvas.mpl_connect('motion_notify_event',self.on_hover)
         self.pressid=plt.gcf().canvas.mpl_connect('button_press_event',self.on_click)
         self.releaseid=plt.gcf().canvas.mpl_connect('button_release_event',self.on_release)
+        self.keyid=plt.gcf().canvas.mpl_connect('key_press_event',self.on_keypress)
 
     def disconnect(self):
         plt.gcf().canvas.mpl_disconnect(self.hoverid)
         plt.gcf().canvas.mpl_disconnect(self.pressid)
         plt.gcf().canvas.mpl_disconnect(self.releaseid)
+        plt.gcf().canvas.mpl_disconnect(self.keyid)
     
     def on_hover(self,event):
         if event.xdata==None or event.ydata==None:
@@ -131,21 +138,30 @@ class Satellite:
             self.selected=False
             return
         close=closeto(self.position,np.array([event.xdata,event.ydata]),1e8)
+        if self.selected and event.button==1:
+            self.velocity=(np.array([event.xdata,event.ydata])-self.position)/5e3
         if close:
             if event.button==1:
-                self.draged=True
-                print('draged')
-
+                self.draged=True 
             if event.button==3:
                 self.selected=True
                 print(self)
+        
         else:
             self.selected=False
     
     def on_release(self,event):
         self.draged=False
 
-
+    def on_keypress(self,event):
+        if event.key=='right' and self.selected:
+            self.velocity+=np.array([200,0])
+        if event.key=='left' and self.selected:
+            self.velocity+=np.array([-200,0])
+        if event.key=='up' and self.selected:
+            self.velocity+=np.array([0,200])
+        if event.key=='down' and self.selected:
+            self.velocity+=np.array([0,-200])
 
 class Modes:
     running: bool
@@ -161,6 +177,7 @@ class Modes:
         self.canvas=canvas
         self.hovered=np.array([0.0,0.0])
         self.arrows=False
+        self.exporting=False
         self.closeid = plt.gcf().canvas.mpl_connect('close_event',self.closeing)
         self.keyid = plt.gcf().canvas.mpl_connect('key_press_event',self.key)
     def spaceclick(self):
@@ -174,6 +191,8 @@ class Modes:
     def key(self,event):
         if event.key==' ':
             self.spaceclick()
+        if event.key=='e':
+            self.exporting=True
     
     def closeing(self,event):
         self.running=False
@@ -256,3 +275,8 @@ def convert_time(t):
     t=t//365
     y=t
     return(f'{y} years,\n{d} days,\n{h} hours,\n{m} minutes and\n{s} seconds')
+
+def exporting(planets,name):
+    out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
+    with open(f"presets/{name}.json", "w") as fout:
+        fout.write(out_lst)

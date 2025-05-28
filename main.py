@@ -16,12 +16,11 @@ ax.set_ylim(-10e7, 10e7)
 
 #Contants
 G=6.67430e-11 # [m3/kgs2]
-datapoints=6000
+datapoints=500
 dt=3
-storefrequency=50
-showfrequency=200
+storefrequency=30
+showfrequency=100
 imp=True
-export=False
 
 planets = [
    Satellite(name="Earth", mass=5.972e+24,
@@ -38,22 +37,16 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Threebody2.json', 'r') as fin:
+    with open('presets/Fourbody2.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
 
 
-
-
-if export==True:
-    out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
-    with open("presets/Sat2.json", "w") as fout:
-        fout.write(out_lst)
-
 #Initialize lines and point masses to be plotted
 lineheads = [ax.plot([], [], 'o', markersize=6)[0] for _ in planets]
 lines = [ax.plot([], [], '-')[0] for _ in planets]
+
 #Initialize the energy and time text to be plotted
 energy_text = ax.text(1.05,0.3, '', fontsize=12, transform=ax.transAxes)
 time_text =ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
@@ -99,16 +92,21 @@ while modes.running:
                 data = p.getHistory(storeline)
                 lineheads[i].set_data([p.position[0]], [p.position[1]])
                 lines[i].set_data(data[:, 0], data[:, 1])
+               
                 maxposx,maxposy = new_frame(p,maxposx,maxposy)
+                #p.maxpos=max(maxposx[1],maxposy[1])
                 ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
-                energy_text.set_text(f"Energy change(% of t=0):\n{100*get_system_energy(planets,G)/e_0-100:0.3f}%")
+                energy_text.set_text(f"Energy change(% of t=0):\n{-100*get_system_energy(planets,G)/e_0+100:0.3f}%")
                 time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
                 plt.pause(0.0001)
 
         f+=1
     else:
-        
+        if modes.exporting:
+            exporting(planets,f'Preset')
+            modes.exporting=False
+
         if modes.arrows: 
             for p in planets:
                 arrows.append(plt.arrow(p.position[0],p.position[1],
@@ -117,8 +115,12 @@ while modes.running:
                 
         for i,p in enumerate(planets):
             lineheads[i].set_data([p.position[0]], [p.position[1]])
+            if p.selected:
+                lineheads[i].set_marker('D')
+                lineheads[i].set_markersize(15)
             if p.hovered:
                 for n,pl in enumerate(planets):
+                    
                     if n!=i:
                         lines[n].set_alpha(0.2)
                         if modes.arrows:
@@ -133,6 +135,8 @@ while modes.running:
 
         for n,pl in enumerate(planets):    
             lines[n].set_alpha(1)
+            lineheads[n].set_marker('o')
+            lineheads[n].set_markersize(6)
 plt.ioff()
 plt.show()
 print('exiting...')
