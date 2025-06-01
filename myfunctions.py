@@ -2,10 +2,9 @@ from math import*
 import numpy as np
 from numpy.typing import NDArray
 import matplotlib.pyplot as plt
-from math import *
 import json
 
-fig, ax = plt.subplots()
+
 
 class Satellite:
 
@@ -125,7 +124,7 @@ class Satellite:
         if event.xdata==None or event.ydata==None:
             return
 
-        if closeto(self.position,np.array([event.xdata,event.ydata]),1e8):
+        if closeto(self.position,np.array([event.xdata,event.ydata]),self.maxpos):
                 self.hovered=True
         else:
             self.hovered=False
@@ -137,9 +136,9 @@ class Satellite:
         if event.xdata==None or event.ydata==None:
             self.selected=False
             return
-        close=closeto(self.position,np.array([event.xdata,event.ydata]),1e8)
+        close=closeto(self.position,np.array([event.xdata,event.ydata]),self.maxpos)
         if self.selected and event.button==1:
-            self.velocity=(np.array([event.xdata,event.ydata])-self.position)/5e3
+            self.velocity=(np.array([event.xdata,event.ydata])-self.position)/self.maxpos*5e3
         if close:
             if event.button==1:
                 self.draged=True 
@@ -163,42 +162,10 @@ class Satellite:
         if event.key=='down' and self.selected:
             self.velocity+=np.array([0,-200])
 
-class Modes:
-    running: bool
-    paused: bool
-    #canvas: plt.figure.Figure
-    hoverid: int
-    clickid: int
-    hovered: NDArray[np.float64] #last hovered point
-    arrows: bool #velocity arrows visible
-    def __init__(self,canvas):
-        self.running=True
-        self.paused=False
-        self.canvas=canvas
-        self.hovered=np.array([0.0,0.0])
-        self.arrows=False
-        self.exporting=False
-        self.closeid = plt.gcf().canvas.mpl_connect('close_event',self.closeing)
-        self.keyid = plt.gcf().canvas.mpl_connect('key_press_event',self.key)
-    def spaceclick(self):
-        if self.paused:
-            self.paused=False          
-            self.arrows=False
-        else:
-            self.paused=True
-            
-            self.arrows=True
-    def key(self,event):
-        if event.key==' ':
-            self.spaceclick()
-        if event.key=='e':
-            self.exporting=True
-    
-    def closeing(self,event):
-        self.running=False
+
 
 def closeto(arr1:NDArray,arr2:NDArray,maxpos):
-    trashold=0.04
+    trashold=0.07
     
     if np.linalg.norm(arr1-arr2)<maxpos*trashold:
         return True
@@ -280,3 +247,15 @@ def exporting(planets,name):
     out_lst = json.dumps([p.__dict__() for p in planets], indent=4)
     with open(f"presets/{name}.json", "w") as fout:
         fout.write(out_lst)
+
+def export_naming():
+    num=-1
+    found=False
+    
+    while not found:
+        num+=1
+        try:
+            f = open(f"presets/Preset{num}.json", "r")
+        except:
+            found=True
+    return num

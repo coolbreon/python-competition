@@ -1,13 +1,11 @@
 from myfunctions import *
 import json
-
-def key(event):
-    if event.key==' ':
-        modes.spaceclick()
+from eventhandler import*
 
 
 plt.ion()
 
+fig, ax = plt.subplots()
 ax.set_aspect('equal', adjustable='box')
 ax.set_title("Simulation (Testing Movement)")
 ax.set_xlim(-10e7, 10e7)
@@ -16,7 +14,7 @@ ax.set_ylim(-10e7, 10e7)
 
 #Contants
 G=6.67430e-11 # [m3/kgs2]
-datapoints=500
+datapoints=5000
 dt=3
 storefrequency=30
 showfrequency=100
@@ -31,13 +29,11 @@ planets = [
     Satellite(name="Sat", mass=4.0e3,
               pos=np.array([0.0, 4.27e7]),
               vel=np.array([1.0e3, 0.0]),
-              datapoints=datapoints),
-    
-    
+              datapoints=datapoints),    
 ]
 
 if imp==True:
-    with open('presets/Fourbody2.json', 'r') as fin:
+    with open('presets/Threebody2.json', 'r') as fin:
         importlst=json.load(fin)
     planets=importjson(importlst,datapoints)
 imp=False
@@ -50,25 +46,25 @@ lines = [ax.plot([], [], '-')[0] for _ in planets]
 #Initialize the energy and time text to be plotted
 energy_text = ax.text(1.05,0.3, '', fontsize=12, transform=ax.transAxes)
 time_text =ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
+mass_text =ax.text(1.05,0.9, '', fontsize=12, transform=ax.transAxes)
 
 for i, marker in enumerate(lineheads):
     marker.set_label(planets[i].name)
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+plt.legend(bbox_to_anchor=(-0.3, 1), loc='upper right', borderaxespad=0.)
 
 #initialzize variables
 modes=Modes(plt.gcf().canvas)
 
 storeline=0
 f=0
-maxposx= [0,0]
-maxposy= [0,0]
+maxposx= [-1e7,1e7]
+maxposy= [-1e7,1e7]
 arrows=[]
 
-for p in planets:
-            p.connect()
 
 #Energy at t=0
 e_0 = get_system_energy(planets,G)
+modes.mass_to_create=100
 
 while modes.running:
     if not modes.paused:
@@ -92,26 +88,52 @@ while modes.running:
                 data = p.getHistory(storeline)
                 lineheads[i].set_data([p.position[0]], [p.position[1]])
                 lines[i].set_data(data[:, 0], data[:, 1])
-               
+                p.maxpos=max(maxposx[1],maxposy[1])
                 maxposx,maxposy = new_frame(p,maxposx,maxposy)
-                #p.maxpos=max(maxposx[1],maxposy[1])
                 ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
                 energy_text.set_text(f"Energy change(% of t=0):\n{-100*get_system_energy(planets,G)/e_0+100:0.3f}%")
                 time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
+                mass_text.set_text(f"Created / changed mass:\n{modes.mass_to_create:0.0f}")
                 plt.pause(0.0001)
 
         f+=1
     else:
         if modes.exporting:
-            exporting(planets,f'Preset')
+            exporting(planets,f'Preset{export_naming()}')
             modes.exporting=False
+
+        if modes.connecting:
+            modes.connect()
+            for p in planets:
+                p.connect()
+            modes.connecting=False
+        
+        if modes.disconnecting:
+            modes.disconnect()
+            for p in planets:
+                p.disconnect()
+                p.selected=False
+            modes.disconnecting=False
+
+        if modes.creating:
+            planets.append(
+                Satellite(name=f"Asteroid{len(planets)+1}", mass=modes.mass_to_create,
+              pos=modes.create,
+              vel=np.array([0.0, 0.0]),
+              datapoints=datapoints)
+            )
+            planets[-1].connect()
+            lineheads.append(ax.plot([], [], 'o', markersize=6)[0])
+            lines.append(ax.plot([], [], '-')[0])
+            modes.creating=False
+
 
         if modes.arrows: 
             for p in planets:
                 arrows.append(plt.arrow(p.position[0],p.position[1],
-                                        p.velocity[0]*5e3,p.velocity[1]*5e3, 
-                                        width= 0.2, head_width=1000000))
+                                        p.velocity[0]*p.maxpos/5e3,p.velocity[1]*p.maxpos/5e3, 
+                                        width= 0.2, head_width=p.maxpos/5e1))
                 
         for i,p in enumerate(planets):
             lineheads[i].set_data([p.position[0]], [p.position[1]])
