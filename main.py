@@ -33,11 +33,7 @@ planets = [
 ]
 
 if imp==True:
-    with open('presets/Threebody2.json', 'r') as fin:
-        importlst=json.load(fin)
-    planets=importjson(importlst,datapoints)
-imp=False
-
+    planets=importjson('Threebody2',datapoints)
 
 #Initialize lines and point masses to be plotted
 lineheads = [ax.plot([], [], 'o', markersize=6)[0] for _ in planets]
@@ -100,7 +96,7 @@ while modes.running:
         f+=1
     else:
         if modes.exporting:
-            exporting(planets,f'Preset{export_naming()}')
+            exporting(planets,export_naming())
             modes.exporting=False
 
         if modes.connecting:
