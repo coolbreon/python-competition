@@ -1,7 +1,7 @@
 from myfunctions import *
 import json
 from eventhandler import*
-
+from Satelliteobject import Satellite
 
 plt.ion()
 
@@ -21,7 +21,7 @@ showfrequency=100
 imp=True
 
 planets = [
-   Satellite(name="Earth", mass=5.972e+24,
+    Satellite(name="Earth", mass=5.972e+24,
               pos=np.array([0.0, 0.0]),
               vel=np.array([0.0, 0.0]),
               datapoints=datapoints),
@@ -64,14 +64,14 @@ arrows=[]
 
 #Energy at t=0
 e_0 = get_system_energy(planets,G)
-modes.mass_to_create=100
 
 while modes.running:
     if not modes.paused:
         for l, p1 in enumerate(planets):
             for p2 in planets[l+1:]:
-                acceleration(p1,p2,G,dt)
-            
+                v1,v2=acceleration(p1,p2,G,dt)
+                p1.velocity=v1
+                p2.velocity=v2
         for p in planets:
             p.move(dt)
         
@@ -94,7 +94,7 @@ while modes.running:
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
                 energy_text.set_text(f"Energy change(% of t=0):\n{-100*get_system_energy(planets,G)/e_0+100:0.3f}%")
                 time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
-                mass_text.set_text(f"Created / changed mass:\n{modes.mass_to_create:0.0f}")
+                mass_text.set_text(f"Created mass:\n{modes.mass_to_create:0.0f}[kg]")
                 plt.pause(0.0001)
 
         f+=1
