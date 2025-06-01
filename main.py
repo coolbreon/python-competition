@@ -1,6 +1,5 @@
 from myfunctions import *
-import json
-from eventhandler import*
+from eventhandler import Modes
 from Satelliteobject import Satellite
 
 plt.ion()
