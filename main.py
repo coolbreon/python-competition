@@ -89,7 +89,7 @@ while modes.running:
                 ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
                 energy_text.set_text(f"Energy change(% of t=0):\n{-100*get_system_energy(planets,G)/e_0+100:0.3f}%")
                 time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
-                mass_text.set_text(f"Created mass:\n{modes.mass_to_create:0.0f}[kg]")
+                mass_text.set_text(f"Created mass:\n1e{log10(modes.mass_to_create):0.0f}[kg]")
                 plt.pause(0.0001)
 
         f+=1
