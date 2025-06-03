@@ -32,7 +32,7 @@ planets = [
 ]
 
 if imp==True:
-    planets=importjson('Threebody2',datapoints)
+    planets=importjson('Threebody1',datapoints)
 
 #Initialize lines and point masses to be plotted
 lineheads = [ax.plot([], [], 'o', markersize=6)[0] for _ in planets]
@@ -69,7 +69,7 @@ while modes.running:
                 p2.velocity=v2
         for p in planets:
             p.move(dt)
-        
+       # dt=change_dt(planets)
         if f%storefrequency==0:
             storeline+=1
             if storeline==datapoints:

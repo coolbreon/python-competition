@@ -131,3 +131,12 @@ def export_naming():
         num+=1
     #returns the naming as a string
     return (f'Preset{num}')
+
+def change_dt(planets):
+    mindist=100000
+    for i,p in enumerate(planets):
+        for j,p2 in enumerate(planets[i:]):
+            if 10000>(np.linalg.norm(planets[i].position-planets[j].position)):
+                return 1
+                print(np.linalg.norm(planets[i].position-planets[j].position))
+    return 3
