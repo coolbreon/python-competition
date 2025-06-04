@@ -14,16 +14,18 @@ def acceleration(sat1:Satellite, sat2:Satellite, G:float, dt:float):
         #Calculate distance
         r_vec = sat1.position-sat2.position
         dist = np.linalg.norm(r_vec)
-        unit_vector = r_vec/dist                      
-        
-        #Calculate the unit vector pointing from self planet to other planet
-        F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
-        
-        #Newton's second law
-        a1=-F/sat1.mass                                    
-        a2=F/sat2.mass
-        
-        #Iteration
+        unit_vector = r_vec/dist   
+        a1=0
+        a2=0                   
+        if dist>5e5: #AVOID ACCIDENTAL SLINGSHOTTING
+            #Calculate the unit vector pointing from self planet to other planet
+            F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
+            
+            #Newton's second law
+            a1=-F/sat1.mass                                    
+            a2=F/sat2.mass
+            
+            #Iteration
         v1=sat1.velocity+a1*dt
         v2=sat2.velocity+a2*dt
         return v1,v2
@@ -132,11 +134,3 @@ def export_naming():
     #returns the naming as a string
     return (f'Preset{num}')
 
-def change_dt(planets):
-    mindist=100000
-    for i,p in enumerate(planets):
-        for j,p2 in enumerate(planets[i:]):
-            if 10000>(np.linalg.norm(planets[i].position-planets[j].position)):
-                return 1
-                print(np.linalg.norm(planets[i].position-planets[j].position))
-    return 3
