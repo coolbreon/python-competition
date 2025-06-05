@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 root=tk.Tk()
 running = False
 preset='Threebody1'
@@ -15,6 +16,7 @@ def create_menu():
     tk.Button(root,text='Help',command=help).pack()
     tk.Button(root,text='Exit',command=exit).pack()
     root.mainloop()
+    print(os.listdir('presets'))
     return running, preset
 
 
@@ -50,6 +52,8 @@ def help():
         "\t\tOnce selected:\n"
         "\t\t- Left Click - Make velocity vector point to click location\n"
         "\t\t- Arrow Buttons - Move velocity vector in x-y coordinates\n"
+        "\t- press V to hide/show velocity vectors\n"
+        "\t- press E to export the current layout as a preset\n"
         )
     text_box.config(state='disabled')
     text_box.pack(expand=True, fill='both') #Make text fill the window
@@ -62,14 +66,10 @@ def presets():
     presets=tk.Tk()
     presets.title("OSNI Presets")
     presets.geometry('600x800') 
-    tk.Button(presets,text='Geostationary Satelliet',command=lambda:(set_preset("Sat1"))).pack()
-    tk.Button(presets,text='Generic Satellite',command=lambda:(set_preset("Sat2"))).pack()
-    tk.Button(presets,text='Three-body 1',command=lambda:(set_preset("Threebody1"))).pack()
-    tk.Button(presets,text='Three-body 2',command=lambda:(set_preset("Threebody2"))).pack()
-    tk.Button(presets,text='Three-body 3',command=lambda:(set_preset("Threebody3"))).pack()
-    tk.Button(presets,text='Four-body 1',command=lambda:(set_preset("Fourbody1"))).pack()
-    tk.Button(presets,text='Four-body 2',command=lambda:(set_preset("Fourbody2"))).pack()
-    tk.Button(presets,text='Four-body 3',command=lambda:(set_preset("Fourbody3"))).pack()
+    for prest in os.listdir('presets'):
+        prest=prest[0:-5]
+        tk.Button(presets,text=prest,command=lambda:(set_preset(prest))).pack()
+    
     tk.Button(presets, text="Back to Menu", command=lambda: (presets.destroy(), root.deiconify())).pack(pady=10)
     presets.update()
 

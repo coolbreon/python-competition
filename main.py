@@ -31,7 +31,7 @@ if running:
         Satellite(name="Sat", mass=4.0e3,
                 pos=np.array([0.0, 4.27e7]),
                 vel=np.array([1.0e3, 0.0]),
-                datapoints=datapoints),    
+                datapoints=datapoints),
     ]
 
     if imp==True:
