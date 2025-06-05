@@ -17,7 +17,6 @@ def create_menu():
     #Buttons
     tk.Button(root, text='Start Simulation', command=start).pack()
     tk.Button(root,text='Presets',command=presets).pack()
-    tk.Button(root,text='Custom Orbit').pack()
     tk.Button(root,text='User Manual',command=help).pack()
     tk.Button(root,text='Exit',command=exit).pack()
     
@@ -42,15 +41,14 @@ def help():
         "This is OSNI, a Python program created to simulate orbits using matplotlib and simple two-dimensional numerical integration.\n\n"
         "It is very important to know how a satellite or rocket will behave before actually sending them to space, and this program can help visualize that.\n"
         "Using the 'Presets' button, the user can access several presets of planets and satellites orbiting each other. After selecting a preset, the simulation begins automatically. Presets with many bodies may not run well on less powerful computers.\n"
-        #Writing own presets Y/N?
-        "The user may also make their own simulation by either writing their own .json file in the presets folder, taking a look at how all the other presets are written, or using the 'Custom Orbit' button.\n"
+        "The user may also make their own simulation by modifying one of the .json files or creating a new one in the presets folder, taking a look at how all the other presets are written.\n"
         "When creating a custom preset, it is recommended to use reasonable values, else the simulation may provide strange results. Please refer to the presets to find ideal orders of magnitude (based off Earth).\n"
         "Once the simulation is running, the following keybinds may be used:\n"
         "- SPACE - Pause\n"
         "- SHIFT - Increase mass of body to be created\n"
         "- CTRL - Decrease mass of body to be created\n"
-        "- W - Increase dt of the numerical integration\n"
-        "- S - Decrease dt of the numerical integration\n"
+        "- U - Increase dt of the numerical integration\n"
+        "- J - Decrease dt of the numerical integration\n"
         "\tOnce paused:\n"
         "\t- Hover over planet - Highlights trajectory of one body\n"
         "\t- Middle Mouse Click - Creates a new body of previously given mass\n"
@@ -61,6 +59,7 @@ def help():
         "\t\t- Arrow Buttons - Move velocity vector in x-y coordinates\n"
         "\t- press V to hide/show velocity vectors\n"
         "\t- press E to export the current layout as a preset\n"
+        "\n\nDisclaimer: AI was used to debug the code and to learn new syntaxes."
         )
     text_box.config(state='disabled')
     text_box.pack(expand=True, fill='both') #Make text fill the window
@@ -75,7 +74,7 @@ def presets():
     presets.title("OSNI Presets")
     presets.geometry('600x800') 
 
-    for prest in os.listdir('presets'):
+    for prest in sorted(os.listdir('presets')):
         prest=prest[0:-5]
         tk.Button(presets, text=prest, command=lambda p=prest: (set_preset(p), set_running(), presets.destroy(), root.destroy())).pack()
     

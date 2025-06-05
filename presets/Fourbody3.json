@@ -1,6 +1,6 @@
 [
     {
-        "name": "Asteroid1",
+        "name": "Asteroid 1",
         "mass": 4e+24,
         "position": [
             0.0,
@@ -12,7 +12,7 @@
         ]
     },
     {
-        "name": "Asteroid2",
+        "name": "Asteroid 2",
         "mass": 4e+24,
         "position": [
             0.0,
@@ -24,7 +24,7 @@
         ]
     },
     {
-        "name": "Asteroid2",
+        "name": "Asteroid 3",
         "mass": 4e+24,
         "position": [
             42700000.0,
@@ -36,7 +36,7 @@
         ]
     },
     {
-        "name": "Asteroid2",
+        "name": "Asteroid 4",
         "mass": 4e+24,
         "position": [
             42700000.0,

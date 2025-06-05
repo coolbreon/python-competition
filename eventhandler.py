@@ -99,9 +99,9 @@ class Modes:
             self.mass_to_create=self.mass_to_create/10
 
         #w increases s decreases the dt of the integration
-        if event.key=='w':
+        if event.key=='u':
             self.dt=self.dt*10
-        if event.key=='control':
+        if event.key=='j':
             self.dt=self.dt/10
 
     def closeing(self,event):
