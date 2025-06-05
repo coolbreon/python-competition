@@ -13,27 +13,13 @@ if running:
     ax.set_ylim(-10e7, 10e7)
 
 
-    #Contants
+    #Constants
     G=6.67430e-11 # [m3/kgs2]
     datapoints=5000
     dt=3
     storefrequency=30
     showfrequency=100
     imp=True
-
-
-    planets = [
-        Satellite(name="Earth", mass=5.972e+24,
-                pos=np.array([0.0, 0.0]),
-                vel=np.array([0.0, 0.0]),
-                datapoints=datapoints),
-
-        Satellite(name="Sat", mass=4.0e3,
-                pos=np.array([0.0, 4.27e7]),
-                vel=np.array([1.0e3, 0.0]),
-                datapoints=datapoints),
-    ]
-
     if imp==True:
         planets=importjson(preset,datapoints)
 
@@ -71,6 +57,9 @@ if running:
                     v1,v2=acceleration(p1,p2,G,dt)
                     p1.velocity=v1
                     p2.velocity=v2
+                if p1.changed:
+                    e_0=get_system_energy(planets,G)
+                    p1.changed=False
             for p in planets:
                 p.move(dt)
             if f%storefrequency==0:
@@ -124,6 +113,7 @@ if running:
                 lineheads.append(ax.plot([], [], 'o', markersize=6)[0])
                 lines.append(ax.plot([], [], '-')[0])
                 modes.creating=False
+                e_0=get_system_energy(planets,G)
 
 
             if modes.arrows: 

@@ -19,7 +19,8 @@ class Satellite:
     maxpos : np.float64                     #[m] stores the length of the axes to sense if the mouse is close
     hovered : bool                          #True if the mouse is on the satellite
     selected : bool                         #True if the satellite was selected (by rightclick)
-    draged : bool                           #True if the satellite is being draged (mouse pressed and on the satellite)
+    dragged : bool                           #True if the satellite is being dragged (mouse pressed and on the satellite)
+    changed : bool
 
     pressid : int                           #stores the id of mouse click event connection
     hoverid : int                           #stores the id of mouse move event connection
@@ -47,7 +48,8 @@ class Satellite:
         self.maxpos = max(self.position[0],self.position[1])
         self.hovered = False
         self.selected = False
-        self.draged = False
+        self.dragged = False
+        self.changed=False
 
         self.hoverid = None
         self.pressid = None
@@ -134,21 +136,22 @@ class Satellite:
         Handles the mouse movement event
         '''
 
-        #If the mouse is outside the figure then this object is not draged nor hovered
+        #If the mouse is outside the figure then this object is not dragged nor hovered
         if event.xdata==None or event.ydata==None:
             self.hovered=False
-            self.draged=False
+            self.dragged=False
             return
 
         #If the mouse is moved close enough to this satellite then it is 'hovered'
-        if np.linalg.norm(self.position-np.array([event.xdata,event.ydata]))<self.maxpos*0.1:
+        if np.linalg.norm(self.position-np.array([event.xdata,event.ydata]))<self.maxpos*0.03:
                 self.hovered=True
         else:
             self.hovered=False
 
-        #If the Satellite is draged update it's position
-        if self.draged:
+        #If the Satellite is dragged update its position
+        if self.dragged:
             self.position=np.array([event.xdata,event.ydata])
+            self.changed=True
     
     def on_click(self,event):
         '''
@@ -164,12 +167,15 @@ class Satellite:
         #If the planet is selected then leftclick updates its velocity (converted from xdata to m/s)
         if self.selected and event.button==1:
             self.velocity=(np.array([event.xdata,event.ydata])-self.position)/self.maxpos*5e3
+            self.changed=True
+
 
         #If clicked on the Satellite
-        if np.linalg.norm(self.position-np.array([event.xdata,event.ydata]))<self.maxpos*0.1:
-            #If it is clicked by left click the Satellite becomes draged
+        if np.linalg.norm(self.position-np.array([event.xdata,event.ydata]))<self.maxpos*0.03:
+            #If it is clicked by left click the Satellite becomes dragged
             if event.button==1:
-                self.draged=True
+                self.dragged=True
+                self.changed=True
             #If it is clicked by right click the Satellite becomes selected and its data is printed 
             if event.button==3:
                 self.selected=True
@@ -181,9 +187,9 @@ class Satellite:
     
     def on_release(self,event):
         '''
-        If the mouse is released the Satellite is no longer draged
+        If the mouse is released the Satellite is no longer dragged
         '''
-        self.draged=False
+        self.dragged=False
 
     def on_keypress(self,event):
         '''
@@ -201,3 +207,4 @@ class Satellite:
             self.velocity+=np.array([0,200])
         if event.key=='down':
             self.velocity+=np.array([0,-200])
+        self.changed= True
