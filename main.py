@@ -5,18 +5,17 @@ from menu import create_menu
 running, preset = create_menu()
 if running:
     plt.ion()
-
+    
+    #Plot variables
     fig, ax = plt.subplots()
     ax.set_aspect('equal', adjustable='box')
     ax.set_title("Simulation (Testing Movement)")
     ax.set_xlim(-10e7, 10e7)
     ax.set_ylim(-10e7, 10e7)
 
-
     #Constants
     G=6.67430e-11 # [m3/kgs2]
     datapoints=5000
-    dt=3
     storefrequency=30
     showfrequency=100
     imp=True
@@ -28,9 +27,7 @@ if running:
     lines = [ax.plot([], [], '-')[0] for _ in planets]
 
     #Initialize the energy and time text to be plotted
-    energy_text = ax.text(1.05,0.3, '', fontsize=12, transform=ax.transAxes)
-    time_text =ax.text(1.05,0.5, '', fontsize=12, transform=ax.transAxes)
-    mass_text =ax.text(1.05,0.9, '', fontsize=12, transform=ax.transAxes)
+    textbox = ax.text(1.05,0.2, '', fontsize=12, transform=ax.transAxes)
 
     for i, marker in enumerate(lineheads):
         marker.set_label(planets[i].name)
@@ -40,6 +37,7 @@ if running:
     if running:
         modes=Modes(plt.gcf().canvas)
 
+    T=0
     storeline=0
     f=0
     maxposx= [-1e7,1e7]
@@ -49,19 +47,22 @@ if running:
 
     #Energy at t=0
     e_0 = get_system_energy(planets,G)
+    
     modes.running=running
+    #Simulation:
     while modes.running:
+        T+=modes.dt
         if not modes.paused:
             for l, p1 in enumerate(planets):
                 for p2 in planets[l+1:]:
-                    v1,v2=acceleration(p1,p2,G,dt)
+                    v1,v2=acceleration(p1,p2,G,modes.dt)
                     p1.velocity=v1
                     p2.velocity=v2
                 if p1.changed:
                     e_0=get_system_energy(planets,G)
                     p1.changed=False
             for p in planets:
-                p.move(dt)
+                p.move(modes.dt)
             if f%storefrequency==0:
                 storeline+=1
                 if storeline==datapoints:
@@ -78,9 +79,11 @@ if running:
                     maxposx,maxposy = new_frame(p,maxposx,maxposy)
                     ax.set_xlim(maxposx[0]*1.2, maxposx[1]*1.2)
                     ax.set_ylim(maxposy[0]*1.2, maxposy[1]*1.2)
-                    energy_text.set_text(f"Energy change(% of t=0):\n{-100*get_system_energy(planets,G)/e_0+100:0.3f}%")
-                    time_text.set_text("Time ellapsed:\n"+ convert_time(f*dt))
-                    mass_text.set_text(f"Created mass:\n1e{log10(modes.mass_to_create):0.0f}[kg]")
+                    textbox.set_text(f'Energy change(% of t=0):\n'+
+                                     f'{-100*get_system_energy(planets,G)/e_0+100:0.3f}%\n\n' +
+                                     f'Time ellapsed:\n {convert_time(T)}\n\n'+
+                                     f'dt={modes.dt}[s]\n\n'
+                                    f'Created mass:\n1e{log10(modes.mass_to_create):0.0f}[kg]')
                     plt.pause(0.0001)
 
             f+=1

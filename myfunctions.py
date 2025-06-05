@@ -16,18 +16,20 @@ def acceleration(sat1:Satellite, sat2:Satellite, G:float, dt:float):
         dist = np.linalg.norm(r_vec)
         unit_vector = r_vec/dist   
         a1=0
-        a2=0                   
-        if dist>5e5: #AVOID ACCIDENTAL SLINGSHOTTING
-            #Calculate the unit vector pointing from self planet to other planet
-            F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
+        a2=0                    #AVOID ACCIDENTAL SLINGSHOTTING
+        #Calculate the unit vector pointing from self planet to other planet
+        F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
+          
+        #Newton's second law
+        a1=-F/sat1.mass                                    
+        a2=F/sat2.mass
             
-            #Newton's second law
-            a1=-F/sat1.mass                                    
-            a2=F/sat2.mass
-            
-            #Iteration
+        #Iteration
         v1=sat1.velocity+a1*dt
         v2=sat2.velocity+a2*dt
+        if dist<6e6:
+            v1=-v1
+            v2=-v2
         return v1,v2
 
 

@@ -1,8 +1,11 @@
 import tkinter as tk
 import os
 root=tk.Tk()
+#DEFAULT VALUES
 running = False
-preset='Threebody1'
+preset='SolarSystem'
+
+#CREATE MAIN MENU
 def create_menu():
     global running
     global preset
@@ -10,24 +13,26 @@ def create_menu():
     message.pack()
     root.title("OSNI Menu")
     root.geometry('600x400')
+    
+    #Buttons
     tk.Button(root, text='Start Simulation', command=start).pack()
     tk.Button(root,text='Presets',command=presets).pack()
     tk.Button(root,text='Custom Orbit').pack()
-    tk.Button(root,text='Help',command=help).pack()
+    tk.Button(root,text='User Manual',command=help).pack()
     tk.Button(root,text='Exit',command=exit).pack()
+    
     root.mainloop()
-    print(os.listdir('presets'))
     return running, preset
 
-
+#START BUTTON
 def start():
     global running
     running = True
     root.destroy()
 
-
+#USER MANUAL BUTTON
 def help():
-    root.withdraw()
+    root.withdraw() #Hide main menu
     hpage=tk.Tk()
     hpage.title("OSNI Help")
     hpage.geometry('600x800')
@@ -44,6 +49,8 @@ def help():
         "- SPACE - Pause\n"
         "- SHIFT - Increase mass of body to be created\n"
         "- CTRL - Decrease mass of body to be created\n"
+        "- W - Increase dt of the numerical integration\n"
+        "- S - Decrease dt of the numerical integration\n"
         "\tOnce paused:\n"
         "\t- Hover over planet - Highlights trajectory of one body\n"
         "\t- Middle Mouse Click - Creates a new body of previously given mass\n"
@@ -58,26 +65,34 @@ def help():
     text_box.config(state='disabled')
     text_box.pack(expand=True, fill='both') #Make text fill the window
     tk.Button(hpage, text="Back to Menu", command=lambda: (hpage.destroy(), root.deiconify())).pack(pady=10)
-    hpage.update()
+    hpage.update() #unhide main menu
 
+#PRESETS
 def presets():
     global preset
-    root.withdraw()
+    root.withdraw() #Hide main menu
     presets=tk.Tk()
     presets.title("OSNI Presets")
     presets.geometry('600x800') 
+
     for prest in os.listdir('presets'):
         prest=prest[0:-5]
-        tk.Button(presets,text=prest,command=lambda:(set_preset(prest))).pack()
+        tk.Button(presets,text=prest,command=lambda:(set_preset(prest), set_running(), root.destroy(), presets.destroy())).pack() #sets preset
     
     tk.Button(presets, text="Back to Menu", command=lambda: (presets.destroy(), root.deiconify())).pack(pady=10)
     presets.update()
 
+#EXIT
 def exit():
     global running
-    running = False
+    running = False #Exits without starting sim
     root.destroy()
 
+#PRESET CHANGE FN
 def set_preset(string):
     global preset
     preset=string
+
+def set_running():
+    global running
+    running=True

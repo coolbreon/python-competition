@@ -24,6 +24,7 @@ class Modes:
     creating: bool              #creating new satellite in the current cycle
     create: NDArray             #create a new satellite at this position
     mass_to_create : float      #[kg] the created satellite will have this mass
+    dt: float                   #[s] dt of the numerical integration
 
     def __init__(self,canvas):
         '''
@@ -43,6 +44,7 @@ class Modes:
         self.keyid = plt.gcf().canvas.mpl_connect('key_press_event',self.key)
         self.clickid = None
         self.mass_to_create = 1e8
+        self.dt = 3
         
     
 
@@ -95,6 +97,12 @@ class Modes:
             self.mass_to_create=self.mass_to_create*10
         if event.key=='control':
             self.mass_to_create=self.mass_to_create/10
+
+        #w increases s decreases the dt of the integration
+        if event.key=='w':
+            self.dt=self.dt*10
+        if event.key=='control':
+            self.dt=self.dt/10
 
     def closeing(self,event):
         '''
