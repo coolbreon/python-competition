@@ -3,6 +3,7 @@ from eventhandler import Modes
 from Satelliteobject import Satellite
 from menu import create_menu
 running, preset = create_menu()
+print(preset)
 if running:
     plt.ion()
     
@@ -16,7 +17,7 @@ if running:
     #Constants
     G=6.67430e-11 # [m3/kgs2]
     datapoints=5000
-    storefrequency=30
+    storefrequency=10
     showfrequency=100
     imp=True
     if imp==True:

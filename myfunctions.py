@@ -19,17 +19,17 @@ def acceleration(sat1:Satellite, sat2:Satellite, G:float, dt:float):
         a2=0                    #AVOID ACCIDENTAL SLINGSHOTTING
         #Calculate the unit vector pointing from self planet to other planet
         F=unit_vector*G*(sat1.mass*sat2.mass)/(dist**2)    
-          
-        #Newton's second law
-        a1=-F/sat1.mass                                    
-        a2=F/sat2.mass
+        if dist>5e5:
+            #Newton's second law
+            a1=-F/sat1.mass                                    
+            a2=F/sat2.mass
             
-        #Iteration
-        v1=sat1.velocity+a1*dt
-        v2=sat2.velocity+a2*dt
-        if dist<6e6:
-            v1=-v1
-            v2=-v2
+            #Iteration
+            v1=sat1.velocity+a1*dt
+            v2=sat2.velocity+a2*dt
+        else:
+            v1=(sat1.mass-sat2.mass)/(sat1.mass+sat2.mass)*sat1.velocity+2*sat2.mass/(sat1.mass+sat2.mass)*sat2.velocity
+            v2=(sat2.mass-sat1.mass)/(sat1.mass+sat2.mass)*sat2.velocity+2*sat1.mass/(sat1.mass+sat2.mass)*sat1.velocity
         return v1,v2
 
 

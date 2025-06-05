@@ -41,7 +41,7 @@ def help():
     text_box.insert(tk.END, 
         "This is OSNI, a Python program created to simulate orbits using matplotlib and simple two-dimensional numerical integration.\n\n"
         "It is very important to know how a satellite or rocket will behave before actually sending them to space, and this program can help visualize that.\n"
-        "Using the 'Presets' button, the user can access several presets of planets and satellites orbiting each other. After selecting a preset, the simulation may be started. Presets with many bodies may not run well on less powerful computers.\n"
+        "Using the 'Presets' button, the user can access several presets of planets and satellites orbiting each other. After selecting a preset, the simulation begins automatically. Presets with many bodies may not run well on less powerful computers.\n"
         #Writing own presets Y/N?
         "The user may also make their own simulation by either writing their own .json file in the presets folder, taking a look at how all the other presets are written, or using the 'Custom Orbit' button.\n"
         "When creating a custom preset, it is recommended to use reasonable values, else the simulation may provide strange results. Please refer to the presets to find ideal orders of magnitude (based off Earth).\n"
@@ -77,7 +77,7 @@ def presets():
 
     for prest in os.listdir('presets'):
         prest=prest[0:-5]
-        tk.Button(presets,text=prest,command=lambda:(set_preset(prest), set_running(), root.destroy(), presets.destroy())).pack() #sets preset
+        tk.Button(presets, text=prest, command=lambda p=prest: (set_preset(p), set_running(), presets.destroy(), root.destroy())).pack()
     
     tk.Button(presets, text="Back to Menu", command=lambda: (presets.destroy(), root.deiconify())).pack(pady=10)
     presets.update()
